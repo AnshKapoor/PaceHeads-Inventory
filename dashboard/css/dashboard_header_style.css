@@ -1,0 +1,58 @@
+/* --- Dashboard Header (Specific Styles) --- */
+.dashboard-header {
+    background: linear-gradient(to right, #3745b5, #60b8d4); /* Gradient background for a modern look */
+    color: white;
+    padding: 15px 40px; /* Increased horizontal padding */
+    display: flex;
+    justify-content: space-between; /* Pushes left and right content to edges */
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2); /* More prominent shadow */
+    position: sticky; /* Make header stick to top */
+    top: 0;
+    z-index: 100; /* Ensure it stays on top of other content */
+}
+
+.header-left h1 {
+    margin: 0;
+    font-size: 2em; /* Slightly larger heading */
+    color: white;
+    font-weight: 700; /* Bolder for prominence */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 25px; /* Increased space between elements in the right section */
+    font-size: 1.1em; /* Slightly larger text */
+}
+
+.header-right span {
+    font-weight: 500; /* Slightly lighter than bold for welcome message */
+    white-space: nowrap; /* Prevent username from wrapping */
+}
+
+.access-rights {
+    background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent background */
+    padding: 6px 12px;
+    border-radius: 20px; /* Pill-shaped background */
+    font-size: 0.85em; /* Slightly smaller for detailed info */
+    opacity: 0.9;
+    font-weight: 600;
+    text-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+
+.logout-button {
+    background-color: #e46569; /* Red logout button */
+    color: white;
+    padding: 10px 20px; /* More padding for button */
+    border-radius: 25px; /* More rounded button */
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    font-size: 1em;
+    font-weight: 600;
+}
+.logout-button:hover {
+    background-color: #d4565a;
+    transform: translateY(-2px); /* Slight lift on hover */
+}
