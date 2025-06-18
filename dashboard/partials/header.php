@@ -1,5 +1,5 @@
 <?php
-require_once '../functions.php'; // Note the relative path to functions.php
+require_once  __DIR__ . '/../../functions.php'; // Correct relative path to functions.php on root
 start_session_once();
 
 if (!is_logged_in()) {
@@ -21,9 +21,9 @@ $page_title = isset($page_title) ? htmlspecialchars($page_title) : 'Dashboard';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $page_title; ?></title>
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="css/dashboard_style.css">
-    <link rel="stylesheet" href="css/dashboard_header_style.css">
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../css/dashboard_style.css">
+    <link rel="stylesheet" href="../css/dashboard_header_style.css">
 </head>
 <body>
     <header class="dashboard-header">

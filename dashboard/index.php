@@ -30,7 +30,9 @@ if ($conn) { // Check if $conn is available (it should be from config.php)
 // Now, we'll render the main content of the dashboard within the <main> tags
 // opened by the dashboard_header.php.
 ?>
-
+  <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="./css/dashboard_style.css">
+    <link rel="stylesheet" href="./css/dashboard_header_style.css">
 <div class="dashboard-section welcome-dashboard-section">
     <h2>Welcome to Your Dashboard!</h2>
     <p>Hello, <span class="highlight-username"><?php echo htmlspecialchars($_SESSION['username']); ?></span>!</p>
@@ -68,10 +70,11 @@ if (has_read_access()): // Checks $_SESSION['has_read_access']
 <?php if (has_edit_access()): // Checks $_SESSION['has_edit_access']
 ?>
 <div class="dashboard-section">
-    <h2>Quick Actions (Edit Access)</h2>
-    <p>Users with edit access can perform quick updates here.</p>
-    <button class="action-button">Update Product Stock</button>
-    <button class="action-button">Process Order</button>
+    <h2>Data Management</h2>
+    <p>View and manage product inventory.</p>
+    <ul>
+        <li><a href="products/index.php" class="admin-link">Manage Products</a></li>
+    </ul>
 </div>
 <?php else: ?>
 <div class="dashboard-section no-access">

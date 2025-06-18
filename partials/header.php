@@ -7,3 +7,10 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <div class="header-left">
+     <div class="fixed-logo">
+        <img src="<?php echo BASE_URL; ?>images/logo.png" alt="PaceHeads Logo " width="40" height="40">
+    </div>
+    <h1 class="product-management">Product Management</h1>
+</div>
+</body>
