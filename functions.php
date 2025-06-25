@@ -47,4 +47,3 @@ function has_special_edit_access() {
 function is_super_admin() {
     return is_logged_in() && has_special_edit_access();
 }
-?>

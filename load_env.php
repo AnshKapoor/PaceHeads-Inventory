@@ -37,4 +37,3 @@ function loadEnv($path) {
 
 // Call the function to load your .env file
 loadEnv(__DIR__ . '/.env');
-?>
