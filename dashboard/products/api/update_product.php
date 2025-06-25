@@ -6,7 +6,6 @@ require_once '../../../config.php';
 require_once '../../../functions.php';
 
 start_session_once();
-
 if (!is_logged_in()) {
     http_response_code(401); // Unauthorized
     echo json_encode(['success' => false, 'message' => 'Not authenticated.']);
@@ -115,13 +114,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $term_params_parts = [];
                 $term_types_parts = '';
                 // Columns to search across for text-based global search
-                $searchable_text_columns = ['sku', 'article', 'category', 'ean', 'condition', 'created_by_username', 'updated_by_username'];
-                foreach ($searchable_text_columns as $col_to_search) {
-                    $prefix = 'p.';
-                    if (in_array($col_to_search, ['created_by_username'])) $prefix = 'u_created.';
-                    if (in_array($col_to_search, ['updated_by_username'])) $prefix = 'u_updated.';
+                 $searchable_db_columns = [
+                    'p.sku', 'p.article', 'p.category', 'p.ean', 'p.condition',
+                    'u_created.username', // Reference actual username column from created_by join
+                    'u_updated.username'  // Reference actual username column from updated_by join
+                ];
 
-                    $term_sql_parts[] = "$prefix$col_to_search LIKE ?";
+                foreach ($searchable_db_columns as $col_to_search_in_where) {
+                    $term_sql_parts[] = "$col_to_search_in_where LIKE ?";
                     $term_params_parts[] = '%' . $term . '%';
                     $term_types_parts .= 's';
                 }
@@ -220,30 +220,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!in_array($field_name, $all_product_columns) || $field_name === 'id' || $field_name === 'created_at' || $field_name === 'updated_at' || $field_name === 'created_by' || $field_name === 'updated_by') {
                 continue; // Cannot edit ID or auto-managed timestamps/user IDs directly via form
             }
-
+             if ($value === "") {
+                $value = null; // Convert empty string to actual PHP null
+            }
+              $escaped_field_name = "`" . $field_name . "`";
             // --- VALIDATION BASED ON YOUR COLUMN TYPES ---
-            if (in_array($field_name, $decimal_columns)) {
-                if (!is_numeric($value)) {
+             if (in_array($field_name, $decimal_columns)) {
+                // Now, $value can be null. We only check is_numeric if it's NOT null.
+                if ($value !== null && !is_numeric($value)) {
                     http_response_code(400);
                     echo json_encode(['success' => false, 'message' => "Invalid numerical value for $field_name."]);
                     $conn->close(); exit();
                 }
-                $param_types .= 'd';
+                $param_types .= 'd'; // Type 'd' for double (decimal)
             } elseif (in_array($field_name, $integer_columns)) {
-                if (!ctype_digit(strval($value)) && $value !== null && $value !== '') { // Allow empty string/null for nullable INTs
+                // Now, $value can be null. We only check ctype_digit if it's NOT null.
+                if ($value !== null && !ctype_digit(strval($value))) {
                     http_response_code(400);
                     echo json_encode(['success' => false, 'message' => "Invalid integer value for $field_name."]);
                     $conn->close(); exit();
                 }
-                $value = ($value === null || $value === '') ? null : (int)$value; // Convert to int or null
-                $param_types .= 'i';
-            } else { // Default to string for varchar, text etc.
-                $param_types .= 's';
+                $param_types .= 'i'; // Type 'i' for integer
+            } else {
+                $param_types .= 's'; // Default to type 's' for string (varchar, text)
             }
 
-            $set_clauses[] = "$field_name = ?";
+            $set_clauses[] = "$escaped_field_name = ?";
             $params[] = $value;
         }
+
 
         if (empty($set_clauses)) {
             http_response_code(400);

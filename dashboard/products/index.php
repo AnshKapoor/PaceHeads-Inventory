@@ -1,7 +1,7 @@
 <?php
 include '../partials/header.php';
-
-// $can_edit = has_edit_access() || has_special_edit_access();
+require_once '../../config.php';
+$can_edit = has_edit_access() || has_special_edit_access();
 
 $page_title = "Product Management";
 ?>
@@ -60,7 +60,7 @@ $page_title = "Product Management";
     </table>
 </div>
 
-<!-- <div id="editProductModal" class="modal">
+<div id="editProductModal" class="modal">
     <div class="modal-content">
         <span class="close-button">&times;</span>
         <h2>Edit Product</h2>
@@ -108,7 +108,7 @@ $page_title = "Product Management";
             <div class="form-group"><label for="modal_updated_by">Updated By:</label><input type="text" id="modal_updated_by" name="updated_by_username" readonly></div> <button type="submit" class="action-button">Save Changes</button>
         </form>
     </div>
-</div> -->
+</div>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css">
@@ -122,10 +122,12 @@ $page_title = "Product Management";
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.html5.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.print.min.js"></script>
 
-
-<!-- <script>
+<div id="app-config" data-base-url="<?php echo htmlspecialchars(BASE_URL); ?>" style="display: none;"></div>
+<script>
+    const BASE_URL_JS = document.getElementById('app-config').dataset.baseUrl;
     const canEdit = <?php echo json_encode($can_edit); ?>;
-</script> -->
+  
+</script>
 <script src="../../js/products_table.js"></script>
 
 <!-- <?php
