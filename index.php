@@ -6,16 +6,23 @@ start_session_once();
 
 $login_error = "";
 
-// Handle Logout - no changes here
+// Handle Logout
 if (isset($_GET['logout'])) {
+    // Log logout activity BEFORE destroying session
+    if (is_logged_in()) {
+        log_activity('LOGOUT', $_SESSION['username'] . ' logged out.');
+    }
     $_SESSION = array();
     session_destroy();
-    redirect('index.php');
+    redirect(BASE_URL . 'index.php');
 }
 
 // Check if the user is already logged in
 if (is_logged_in()) {
-    redirect('dashboard/index.php');
+    // OPTIONAL: Log successful login if user wasn't just redirected from fresh login
+    // This might be redundant if the login form submission also logs it.
+    // For now, let's log only on form submission.
+    redirect(BASE_URL . 'dashboard/index.php');
 }
 
 // Handle Login Form Submission
@@ -36,7 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['id'] = $row['id'];
             $_SESSION['username'] = $row['username'];
             $_SESSION['role'] = $row['role']; // Store the full 3-digit role string
-
+            log_activity('LOGIN', $_SESSION['username'] . ' logged in successfully.', ['user_id' => $_SESSION['id']]);
             // --- NEW: Parse role string into individual boolean session flags ---
             $role_string = $row['role'];
             $_SESSION['has_read_access'] = (substr($role_string, 0, 1) === '1');
@@ -47,6 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             redirect('dashboard/index.php');
         } else {
             $login_error = "Invalid username or password.";
+            log_activity('LOGIN_FAILED', 'Failed login attempt.', ['username_attempt' => $input_username, 'ip' => $_SERVER['REMOTE_ADDR'] ?? '']);
         }
     } else {
         $login_error = "Invalid username or password.";

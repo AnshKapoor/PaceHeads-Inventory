@@ -6,12 +6,8 @@ start_session_once();
 
 // --- Admin Access Check ---
 if (!is_super_admin()) {
-    // If not a super admin, redirect them away or show an error
-    redirect('index.php'); // Redirect to login/dashboard
-    // You could also show a "Permission Denied" page
-    // die("Access Denied: You must be a super admin to add users.");
+    redirect(BASE_URL . 'index.php');
 }
-// --- End Admin Access Check ---
 
 $add_user_error = "";
 $add_user_success = "";
@@ -51,10 +47,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             if ($stmt_insert->execute()) {
                 $add_user_success = "User '" . htmlspecialchars($input_username) . "' added successfully!";
-                // Clear form fields after successful addition
-                $_POST = array();
+                // Log the activity
+                log_activity('USER_ADD', 'User ' . $input_username . ' added by ' . ($_SESSION['username'] ?? 'System'), [
+                    'added_username' => $input_username,
+                    'added_email' => $input_email,
+                    'added_role' => $input_role,
+                    'admin_user_id' => $_SESSION['id'] ?? null
+                ]);
+                $_POST = array(); // Clear form fields
             } else {
                 $add_user_error = "Error: " . $stmt_insert->error;
+                log_activity('USER_ADD_FAILED', 'Failed to add user ' . $input_username . ' by ' . ($_SESSION['username'] ?? 'System'), [
+                    'attempted_username' => $input_username,
+                    'error' => $stmt_insert->error,
+                    'admin_user_id' => $_SESSION['id'] ?? null
+                ]);
             }
             $stmt_insert->close();
         }
@@ -67,7 +74,8 @@ $page_title = "Add New User"; // Set page title for header
 include 'partials/header.php'; // Include the header
 ?>
 
-<div class="container"> <div class="top"></div>
+<div class="container">
+    <div class="top"></div>
     <div class="bottom"></div>
     <div class="center">
         <h2>Add New User</h2>
@@ -80,10 +88,13 @@ include 'partials/header.php'; // Include the header
         <?php endif; ?>
 
         <form action="add_user.php" method="POST" style="width:100%;">
-            <input type="text" name="username" placeholder="username" required autocomplete="off" value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>">
-            <input type="email" name="email" placeholder="email" required autocomplete="off" value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>">
+            <input type="text" name="username" placeholder="username" required autocomplete="off"
+                value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>">
+            <input type="email" name="email" placeholder="email" required autocomplete="off"
+                value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>">
             <input type="password" name="password" placeholder="password" required autocomplete="new-password">
-            <input type="password" name="confirm_password" placeholder="confirm password" required autocomplete="new-password">
+            <input type="password" name="confirm_password" placeholder="confirm password" required
+                autocomplete="new-password">
             <h2>&nbsp;</h2>
             <button type="submit">Add User</button>
         </form>

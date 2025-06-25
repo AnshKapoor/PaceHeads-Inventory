@@ -271,13 +271,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->bind_param($param_types, ...$params);
 
             if ($stmt->execute()) {
+                log_activity('PRODUCT_UPDATE', 'Product ' . $product_id . ' updated by ' . ($_SESSION['username'] ?? 'Unknown'), [
+                    'product_id' => $product_id,
+                    'updated_fields' => $updated_fields, // Log all fields sent in the payload
+                    'editor_user_id' => $editor_user_id
+                ]);
                 echo json_encode(['success' => true, 'message' => 'Product updated successfully.']);
             } else {
+                log_activity('PRODUCT_UPDATE_FAILED', 'Failed to update product ' . $product_id . ' by ' . ($_SESSION['username'] ?? 'Unknown'), [
+                    'product_id' => $product_id,
+                    'attempted_fields' => $updated_fields, // Log the payload that failed
+                    'error_message' => $stmt->error, // Include MySQLi error
+                    'editor_user_id' => $editor_user_id
+                ]);
                 http_response_code(500);
                 echo json_encode(['success' => false, 'message' => 'Database error: ' . $stmt->error]);
             }
             $stmt->close();
         } else {
+            log_activity('PRODUCT_UPDATE_PREPARE_FAILED', 'Failed to prepare update statement for product ' . $product_id . ' by ' . ($_SESSION['username'] ?? 'Unknown'), [
+                'product_id' => $product_id,
+                'attempted_fields' => $updated_fields,
+                'sql_query_start' => substr($sql, 0, 200), // Log start of query
+                'error_message' => $conn->error, // Include connection error
+                'editor_user_id' => $editor_user_id
+            ]);
             http_response_code(500);
             echo json_encode(['success' => false, 'message' => 'Failed to prepare statement: ' . $conn->error]);
         }
