@@ -122,3 +122,112 @@ body {
     margin-top: 30px;
     box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
 }
+
+/* --- Modal Styles --- */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top of everything else */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed for long content */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity - The overlay background */
+  /* Use flexbox to center content */
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    /* Remove margin: 5% auto; - flexbox handles centering */
+    padding: 30px;
+    border: 1px solid #888;
+    width: 90%; /* Adjust width */
+    max-width: 800px; /* Max width for larger screens */
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    position: relative; /* Keep relative for inner positioning if needed */
+    animation-name: animatetop;
+    animation-duration: 0.4s;
+    max-height: 90vh; /* Max height to allow scrolling within modal if content is long */
+    overflow-y: auto; /* Enable scrolling for content inside modal */
+}
+
+/* Add animation (from https://www.w3schools.com/howto/howto_css_modals.asp) */
+@-webkit-keyframes animatetop {
+    from {top:-300px; opacity:0}
+    to {top:0; opacity:1}
+}
+
+@keyframes animatetop {
+    from {top:-300px; opacity:0}
+    to {top:0; opacity:1}
+}
+
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
+}
+
+/* Modal Form Specifics (keep these as they define the inner form layout) */
+#editProductForm {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsive grid for fields */
+    gap: 15px;
+    padding-top: 15px;
+}
+
+#editProductForm .form-group {
+    margin-bottom: 0;
+}
+
+#editProductForm label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+    font-size: 0.9em;
+}
+
+#editProductForm input[type="text"],
+#editProductForm input[type="number"],
+#editProductForm textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-family: inherit;
+    font-size: 0.95em;
+}
+
+#editProductForm textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+#editProductForm button[type="submit"] {
+    grid-column: 1 / -1;
+    padding: 12px 20px;
+    background-color: #60b8d4;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-top: 20px;
+}
+#editProductForm button[type="submit"]:hover {
+    background-color: #50a8c4;
+}
