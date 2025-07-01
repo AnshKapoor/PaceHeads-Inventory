@@ -91,7 +91,7 @@ if (has_read_access()): // Checks $_SESSION['has_read_access']
     <ul>
         <li><a href="../add_user.php" class="admin-link">Add New User</a></li>
         <li>System Configuration</li>
-        <li>View Logs</li>
+        <li><a href="logs/index.php" class="admin-link">View Activity Log</a></li>
     </ul>
 </div>
 <?php else: ?>

@@ -231,3 +231,33 @@ body {
 #editProductForm button[type="submit"]:hover {
     background-color: #50a8c4;
 }
+
+.action-button {
+    background-color: #60b8d4;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.3s ease;
+    margin-top: 10px; /* For buttons in general sections */
+}
+.action-button:hover {
+    background-color: #50a8c4;
+}
+
+/* Style for the View Details button */
+.view-details-button {
+    background-color: #3745b5; /* A different color for distinction */
+}
+.view-details-button:hover {
+    background-color: #2a358a;
+}
+
+/* Styles for the pre tag inside the modal */
+#jsonDetailsContent {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.9em;
+    color: #333;
+}
