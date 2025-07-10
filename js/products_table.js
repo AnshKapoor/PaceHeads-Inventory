@@ -35,7 +35,7 @@ $(document).ready(function() {
         "processing": true,
         "serverSide": true,
         "scrollX": true, // Enable horizontal scrolling for many columns
-        "pageLength": 100, // Sets the default number of rows to display initially
+        "pageLength": 10, // Sets the default number of rows to display initially
         "lengthMenu": [ // Provides options for the "Show entries" dropdown
             [10, 25, 50, 100, 200, -1], // Values
             [10, 25, 50, 100, 200, "All"] // Display text
