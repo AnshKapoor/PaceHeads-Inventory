@@ -60,7 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $order_dir = $_POST['order'][0]['dir'] ?? 'asc';
 
         // Map DataTables column index to actual database column name for sorting/searching
-        // This order MUST match the 'columns' array in products_table.js, excluding the Actions column
         $dt_columns_map = [
             'id', 'sku', 'article', 'category', 'ean', 'condition',
             'subscription_1_monthly', 'subscription_3_monthly', 'subscription_6_monthly', 'subscription_12_monthly',
@@ -70,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'msrp_gross', 'msrp_net', 'outlet_warranty_gross', 'outlet_warranty_net',
             'outlet_no_warranty_gross', 'outlet_no_warranty_net', 'pp_gross', 'pp_net',
             'profit_eur', 'profit_percent',
-            'created_by_username', 'created_at', 'updated_at', 'updated_by_username' // Join names for display
+            'created_by_username', 'created_at', 'updated_at', 'updated_by_username'
         ];
         $order_by = $dt_columns_map[$order_col_idx] ?? 'id';
 
@@ -89,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                  $select_cols_for_display[] = 'p.' . $col;
             }
         }
-        $select_clause = implode(', ', $select_cols_for_display);
+        $select_clause = implode(', ', $select_cols_for_display) . ", '' AS _dt_actions_col";
 
         $from_clause = "FROM products p
                         LEFT JOIN users u_created ON p.created_by = u_created.id
@@ -113,11 +112,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $term_sql_parts = [];
                 $term_params_parts = [];
                 $term_types_parts = '';
-                // Columns to search across for text-based global search
-                 $searchable_db_columns = [
+
+                $searchable_db_columns = [
                     'p.sku', 'p.article', 'p.category', 'p.ean', 'p.condition',
-                    'u_created.username', // Reference actual username column from created_by join
-                    'u_updated.username'  // Reference actual username column from updated_by join
+                    'u_created.username',
+                    'u_updated.username'
                 ];
 
                 foreach ($searchable_db_columns as $col_to_search_in_where) {
@@ -125,7 +124,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $term_params_parts[] = '%' . $term . '%';
                     $term_types_parts .= 's';
                 }
-                // Add numeric columns to search if search value is numeric
                 if (is_numeric($term)) {
                     foreach ($decimal_columns as $num_col) {
                         $term_sql_parts[] = "p.$num_col = ?";
@@ -152,7 +150,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $where_sql = 'WHERE ' . implode(' AND ', $where_clauses);
         }
 
-        // 3. Count filtered records
         $filtered_count_sql = "SELECT COUNT(p.id) " . $from_clause . " " . $where_sql;
         if ($stmt = $conn->prepare($filtered_count_sql)) {
             if (!empty($params)) {
@@ -163,7 +160,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->close();
         }
 
-        // 4. Fetch actual data with pagination and ordering
         $sql = "SELECT $select_clause $from_clause $where_sql ORDER BY $order_by $order_dir LIMIT ?, ?";
 
         if ($stmt = $conn->prepare($sql)) {
@@ -203,62 +199,116 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $input = json_decode(file_get_contents('php://input'), true);
 
         $product_id = $input['id'] ?? null;
-        $updated_fields = $input['data'] ?? [];
+        $submitted_fields = $input['data'] ?? []; // Renamed from $updated_fields for clarity
 
-        if (!$product_id || !is_array($updated_fields) || empty($updated_fields)) {
+        if (!$product_id || !is_array($submitted_fields) || empty($submitted_fields)) {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Invalid input data for update.']);
             exit();
         }
 
+        // --- NEW: Fetch Original Data from Database ---
+        $original_data = null;
+        $select_cols_for_original_fetch = [];
+        // Only select columns that could potentially be updated from the form
+        foreach ($all_product_columns as $col) {
+            // Exclude auto-generated/managed fields that aren't editable from the form
+            // Also exclude ID and tracking fields (created_by, updated_by) if they are not to be fetched for comparison
+            // However, we need to fetch them if they are part of the original_data that might be compared (e.g. for created_by)
+            if (!in_array($col, ['created_at', 'updated_at'])) { // Exclude auto-timestamps for direct comparison
+                 $select_cols_for_original_fetch[] = "`" . $col . "`"; // Escape column names
+            }
+        }
+        $select_original_sql = "SELECT " . implode(', ', $select_cols_for_original_fetch) . " FROM products WHERE id = ?";
+
+        if ($stmt_original = $conn->prepare($select_original_sql)) {
+            $stmt_original->bind_param("i", $product_id);
+            $stmt_original->execute();
+            $result_original = $stmt_original->get_result();
+            $original_data = $result_original->fetch_assoc();
+            $stmt_original->close();
+        }
+
+        if (!$original_data) {
+            http_response_code(404);
+            echo json_encode(['success' => false, 'message' => 'Product not found.']);
+            exit();
+        }
+        // --- END NEW: Fetch Original Data ---
+
         $set_clauses = [];
         $params = [];
         $param_types = '';
+        $changed_fields_for_log = []; // NEW: Array to store only changed fields for the log
 
-        foreach ($updated_fields as $field_name => $value) {
-            // Skip invalid or system-managed fields
-            if (!in_array($field_name, $all_product_columns) || $field_name === 'id' || $field_name === 'created_at' || $field_name === 'updated_at' || $field_name === 'created_by' || $field_name === 'updated_by') {
-                continue; // Cannot edit ID or auto-managed timestamps/user IDs directly via form
+        foreach ($submitted_fields as $field_name => $value) {
+            // Skip invalid or system-managed fields that should NOT be updated from form data
+            if (!in_array($field_name, $all_product_columns) || $field_name === 'id' || $field_name === 'created_at' || $field_name === 'updated_at' || $field_name === 'created_by') {
+                continue; // Cannot edit ID, timestamps, or original creator directly via form
             }
-             if ($value === "") {
-                $value = null; // Convert empty string to actual PHP null
+
+            // Convert empty strings to NULL for database
+            if ($value === '') {
+                $value = null;
             }
-              $escaped_field_name = "`" . $field_name . "`";
-            // --- VALIDATION BASED ON YOUR COLUMN TYPES ---
-             if (in_array($field_name, $decimal_columns)) {
-                // Now, $value can be null. We only check is_numeric if it's NOT null.
-                if ($value !== null && !is_numeric($value)) {
-                    http_response_code(400);
-                    echo json_encode(['success' => false, 'message' => "Invalid numerical value for $field_name."]);
-                    $conn->close(); exit();
-                }
-                $param_types .= 'd'; // Type 'd' for double (decimal)
+
+            // --- NEW: Compare with Original Data to find actual CHANGES ---
+            $original_value = $original_data[$field_name] ?? null;
+
+            // Type casting for robust comparison
+            $value_to_compare = $value;
+            $original_value_to_compare = $original_value;
+
+            if (in_array($field_name, $decimal_columns)) {
+                $value_to_compare = ($value !== null) ? (float)$value : null;
+                $original_value_to_compare = ($original_value !== null) ? (float)$original_value : null;
             } elseif (in_array($field_name, $integer_columns)) {
-                // Now, $value can be null. We only check ctype_digit if it's NOT null.
-                if ($value !== null && !ctype_digit(strval($value))) {
-                    http_response_code(400);
-                    echo json_encode(['success' => false, 'message' => "Invalid integer value for $field_name."]);
-                    $conn->close(); exit();
-                }
-                $param_types .= 'i'; // Type 'i' for integer
+                $value_to_compare = ($value !== null) ? (int)$value : null;
+                $original_value_to_compare = ($original_value !== null) ? (int)$original_value : null;
             } else {
-                $param_types .= 's'; // Default to type 's' for string (varchar, text)
+                // For strings, consider trimming for comparison if whitespace isn't significant
+                $value_to_compare = ($value !== null) ? (string)$value : null;
+                $original_value_to_compare = ($original_value !== null) ? (string)$original_value : null;
             }
-
-            $set_clauses[] = "$escaped_field_name = ?";
-            $params[] = $value;
+            
+            // If value has genuinely changed (strict comparison, including null vs non-null)
+            if ($value_to_compare !== $original_value_to_compare) {
+                $changed_fields_for_log[$field_name] = [
+                    'old' => $original_value_to_compare,
+                    'new' => $value_to_compare
+                ];
+                // Build set clauses ONLY if value has changed
+                $escaped_field_name = "`" . $field_name . "`";
+                if (in_array($field_name, $decimal_columns)) {
+                    $param_types .= 'd';
+                } elseif (in_array($field_name, $integer_columns)) {
+                    $param_types .= 'i';
+                } else {
+                    $param_types .= 's';
+                }
+                $set_clauses[] = "$escaped_field_name = ?";
+                $params[] = $value;
+            }
+            // --- END NEW: Compare ---
         }
 
-
+        // --- NEW: Handle "No Changes Detected" ---
+        // If $set_clauses is empty, it means no actual changes were made to editable fields.
         if (empty($set_clauses)) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'No valid fields provided for update.']);
+            // Log that no changes were made and return success
+            log_activity('PRODUCT_UPDATE_NO_CHANGE', 'Product ' . $product_id . ' submitted with no detected changes by ' . ($_SESSION['username'] ?? 'Unknown'), [
+                'product_id' => $product_id,
+                'editor_user_id' => $editor_user_id
+            ]);
+            http_response_code(200); // Return 200 OK because no error, just no changes
+            echo json_encode(['success' => true, 'message' => 'No changes detected for product ' . $product_id . '.']);
             $conn->close();
             exit();
         }
+        // --- END NEW: Handle "No Changes Detected" ---
 
         // Add updated_by (current user) - this is automatic for any edit
-        $set_clauses[] = 'updated_by = ?';
+        $set_clauses[] = '`updated_by` = ?'; // Escaped
         $params[] = $editor_user_id;
         $param_types .= 'i';
 
@@ -271,17 +321,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->bind_param($param_types, ...$params);
 
             if ($stmt->execute()) {
+                // Log product update activity with ONLY THE CHANGED FIELDS
                 log_activity('PRODUCT_UPDATE', 'Product ' . $product_id . ' updated by ' . ($_SESSION['username'] ?? 'Unknown'), [
                     'product_id' => $product_id,
-                    'updated_fields' => $updated_fields, // Log all fields sent in the payload
+                    'changes' => $changed_fields_for_log, // Use the new array for the log
                     'editor_user_id' => $editor_user_id
                 ]);
                 echo json_encode(['success' => true, 'message' => 'Product updated successfully.']);
             } else {
+                // Log failed product update
                 log_activity('PRODUCT_UPDATE_FAILED', 'Failed to update product ' . $product_id . ' by ' . ($_SESSION['username'] ?? 'Unknown'), [
                     'product_id' => $product_id,
-                    'attempted_fields' => $updated_fields, // Log the payload that failed
-                    'error_message' => $stmt->error, // Include MySQLi error
+                    'attempted_changes' => $changed_fields_for_log, // Log what was *attempted* to change
+                    'error_message' => $stmt->error,
                     'editor_user_id' => $editor_user_id
                 ]);
                 http_response_code(500);
@@ -289,11 +341,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             $stmt->close();
         } else {
+            // Log failed to prepare statement
             log_activity('PRODUCT_UPDATE_PREPARE_FAILED', 'Failed to prepare update statement for product ' . $product_id . ' by ' . ($_SESSION['username'] ?? 'Unknown'), [
                 'product_id' => $product_id,
-                'attempted_fields' => $updated_fields,
-                'sql_query_start' => substr($sql, 0, 200), // Log start of query
-                'error_message' => $conn->error, // Include connection error
+                'submitted_data' => $submitted_fields, // Log all submitted if SQL prep fails
+                'error_message' => $conn->error,
                 'editor_user_id' => $editor_user_id
             ]);
             http_response_code(500);
