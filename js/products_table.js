@@ -35,7 +35,7 @@ $(document).ready(function() {
         "processing": true,
         "serverSide": true,
         "scrollX": true, // Enable horizontal scrolling for many columns
-        "scrollY": "350px",
+        "scrollY": "50vh",
         "scrollCollapse": true,
         "deferRender": true,
         "pageLength": 10, // Sets the default number of rows to display initially
