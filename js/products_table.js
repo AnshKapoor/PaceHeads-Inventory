@@ -35,6 +35,9 @@ $(document).ready(function() {
         "processing": true,
         "serverSide": true,
         "scrollX": true, // Enable horizontal scrolling for many columns
+        "scrollY": "350px",
+        "scrollCollapse": true,
+        "deferRender": true,
         "pageLength": 10, // Sets the default number of rows to display initially
         "lengthMenu": [ // Provides options for the "Show entries" dropdown
             [10, 25, 50, 100, 200, -1], // Values
@@ -48,7 +51,12 @@ $(document).ready(function() {
             }
         },
         "columns": dataTableColumns, // Use the dynamically created columns array
-        "order": [[0, 'asc']] // Default sort by ID
+        "order": [[0, 'asc']], // Default sort by ID
+        "fixedColumns": {
+            leftColumns: 1 // Fix the first column (ID) on the left
+            // You can add rightColumns if you want to fix columns on the right
+            // rightColumns: 1 // Example: fix the last column (Actions) on the right
+        }
     });
 
     // --- Modal Logic ---

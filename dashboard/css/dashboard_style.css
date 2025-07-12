@@ -35,11 +35,11 @@ body {
 
 /* Ensure main content has enough padding at the top to clear sticky header */
 .dashboard-main-content {
-    padding-top: 30px; /* Space from sticky header */
-    padding-left: 30px;
-    padding-right: 30px;
-    max-width: 1200px;
-    margin: 20px auto;
+    padding-top: 10px; /* Space from sticky header */
+    padding-left: 5px;
+    padding-right: 5px;
+    /* max-width: 1200px; */
+    /* margin: 20px auto; */
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 30px;
