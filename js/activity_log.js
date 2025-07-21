@@ -136,7 +136,7 @@ function formatLogDetails(actionType, detailsJsonString) {
             html +=
                 '<p class="detail-title updated"><strong>Product Update:</strong></p>';
             html += "<ul>";
-            html += `<li><strong>Product ID:</strong> <span class="highlight">${details.product_id || "N/A"
+            html += `<li><strong>Product Id:</strong> <span class="highlight">${details.product_id || "N/A"
                 }</span></li>`;
             if (details.product_name) {
                 html += `<li><strong>Product Name:</strong> ${details.product_name}</li>`;
