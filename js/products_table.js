@@ -38,7 +38,7 @@ $(document).ready(function() {
         "scrollY": "50vh",
         "scrollCollapse": true,
         "deferRender": true,
-        "pageLength": 10, // Sets the default number of rows to display initially
+        "pageLength": 25, // Sets the default number of rows to display initially
         "lengthMenu": [ // Provides options for the "Show entries" dropdown
             [10, 25, 50, 100, 200, -1], // Values
             [10, 25, 50, 100, 200, "All"] // Display text
