@@ -1,6 +1,6 @@
 /* --- Dashboard Header (Specific Styles) --- */
 .dashboard-header {
-    background: linear-gradient(to right, #3745b5, #60b8d4); /* Gradient background for a modern look */
+    background: linear-gradient(to right, #0e0e0f, #142328); /* Gradient background for a modern look */
     color: white;
     padding: 15px 40px; /* Increased horizontal padding */
     display: flex;
