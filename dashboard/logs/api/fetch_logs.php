@@ -54,7 +54,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $where_clauses = [];
     $params = [];
     $param_types = '';
-
+    // This where clause added on 22 July to avoid getting unnecessary logs for loggin in and logging
+    $where_clauses[] = "al.action_type NOT IN ('LOGIN', 'LOGOUT')";
     if (!empty($search_value)) {
         $search_terms = array_filter(explode(' ', $search_value));
         foreach ($search_terms as $term) {
@@ -106,10 +107,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute();
         $result = $stmt->get_result();
 
-        while ($row = $result->fetch_assoc()) {
-            // 'details' column is sent as raw JSON string; frontend will format it
-            $data[] = $row;
+    while ($row = $result->fetch_assoc()) {
+    // Decode JSON details to check for product_id
+    $details = json_decode($row['details'], true);
+
+    if (in_array($row['action_type'], ['PRODUCT_UPDATE', 'PRODUCT_UPDATE_FAILED']) && isset($details['product_id'])) {
+        $product_id = $details['product_id'];
+
+        // Prepare query to fetch product name (article)
+        $stmt_product = $conn->prepare("SELECT article FROM products WHERE id = ?");
+        if ($stmt_product) {
+            $stmt_product->bind_param("i", $product_id);
+            $stmt_product->execute();
+            $result_product = $stmt_product->get_result();
+            if ($product_row = $result_product->fetch_assoc()) {
+                // Inject the product name into the details JSON
+                $details['product_name'] = $product_row['article'];
+                $row['details'] = json_encode($details);
+            }
+            $stmt_product->close();
         }
+    }
+
+    $data[] = $row;
+}
+
         $stmt->close();
     }
 
