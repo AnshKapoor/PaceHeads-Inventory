@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Map DataTables column index to actual database column name for sorting/searching
     // This order MUST match the 'columns' array in activity_log.js
     $dt_columns_map = [
-        'id', 'username', 'action_type', 'description', 'details', 'ip_address', 'user_agent', 'timestamp'
+        'id', 'username', 'action_type', 'description', 'details','notes', 'ip_address', 'user_agent', 'timestamp'
     ];
     $order_by = $dt_columns_map[$order_col_idx] ?? 'timestamp'; // Default order by timestamp
 
@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = [];
 
     // Base query parts
-    $select_clause = "SELECT al.id, u.username, al.action_type, al.description, al.details, al.ip_address, al.user_agent, al.timestamp";
+    $select_clause = "SELECT al.id, u.username, al.action_type, al.description, al.details, al.notes, al.ip_address, al.user_agent, al.timestamp";
     $from_clause = "FROM activity_log al LEFT JOIN users u ON al.user_id = u.id";
 
     // 1. Count total records
@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $term_params_parts = [];
             $term_types_parts = '';
             // Columns to search across for text-based global search
-            $searchable_columns = ['u.username', 'al.action_type', 'al.description', 'al.ip_address', 'al.user_agent', 'al.details'];
+            $searchable_columns = ['u.username', 'al.action_type', 'al.description', 'al.ip_address', 'al.user_agent', 'al.details','al.notes' ];
             foreach ($searchable_columns as $col) {
                 $term_sql_parts[] = "$col LIKE ?";
                 $term_params_parts[] = '%' . $term . '%';
