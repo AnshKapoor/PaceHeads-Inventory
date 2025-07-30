@@ -26,7 +26,9 @@ $page_title = "System Activity Log"; // Specific page title for this view
                 <th>Action Type</th>
                 <th>Description</th>
                 <th>Details</th>
+                 <th>Notes</th>
                 <th>IP Address</th>
+                
                 <th>User Agent</th>
                 <th>Timestamp</th>
             </tr>
@@ -34,6 +36,12 @@ $page_title = "System Activity Log"; // Specific page title for this view
         <tbody>
             </tbody>
     </table>
+    <div style="margin: 10px 0;">
+    <button id="editNotesBtn" class="action-button">Edit Notes</button>
+    <button id="saveNotesBtn" class="action-button" disabled>Save Changes</button>
+</div>
+
+
 </div>
 
 <div id="detailsModal" class="modal">
