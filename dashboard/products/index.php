@@ -105,7 +105,12 @@ $page_title = "Product Management";
             <div class="form-group"><label for="modal_created_by">Created By:</label><input type="text" id="modal_created_by" name="created_by" readonly></div>
             <div class="form-group"><label for="modal_created_at">Created At:</label><input type="text" id="modal_created_at" name="created_at" readonly></div>
             <div class="form-group"><label for="modal_updated_at">Updated At:</label><input type="text" id="modal_updated_at" name="updated_at" readonly></div>
+            <div class="form-group">
+    <label for="updateNotes"><strong>Update Notes</strong></label>
+    <textarea id="updateNotes" name="updateNotes" rows="3" style="width:100%;"></textarea>
+</div>
             <div class="form-group"><label for="modal_updated_by">Updated By:</label><input type="text" id="modal_updated_by" name="updated_by_username" readonly></div> <button type="submit" class="action-button">Save Changes</button>
+            
         </form>
     </div>
 </div>

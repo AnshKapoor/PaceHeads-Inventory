@@ -48,7 +48,7 @@ function is_super_admin() {
     return is_logged_in() && has_special_edit_access();
 }
 // Function for logging user activities
-function log_activity($action_type, $description = null, $details = null) {
+function log_activity($action_type, $description = null, $details = null,$notes = null) {
     global $conn; // Access the global database connection
 
     if (!$conn) {
@@ -63,10 +63,13 @@ function log_activity($action_type, $description = null, $details = null) {
     $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? null;
     $details_json = ($details !== null) ? json_encode($details) : null;
 
-    $stmt = $conn->prepare("INSERT INTO activity_log (user_id, action_type, description, details, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?)");
-    
+    $stmt = $conn->prepare("INSERT INTO activity_log (user_id, action_type, description, details,notes, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    if (!$stmt) {
+    error_log("Prepare failed: " . $conn->error);
+    return;
+}
     // Use 's' for string types for fields that can be NULL
-    $stmt->bind_param("isssss", $user_id, $action_type, $description, $details_json, $ip_address, $user_agent);
+    $stmt->bind_param("issssss", $user_id, $action_type, $description, $details_json,$notes, $ip_address, $user_agent);
 
     $stmt->execute();
     $stmt->close();

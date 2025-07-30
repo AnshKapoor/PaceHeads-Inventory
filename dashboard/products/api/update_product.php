@@ -200,7 +200,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $product_id = $input['id'] ?? null;
         $submitted_fields = $input['data'] ?? []; // Renamed from $updated_fields for clarity
-
+        $notes = $input['notes'] ?? null; // <-- Capture notes from modal
         if (!$product_id || !is_array($submitted_fields) || empty($submitted_fields)) {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Invalid input data for update.']);
@@ -326,7 +326,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'product_id' => $product_id,
                     'changes' => $changed_fields_for_log, // Use the new array for the log
                     'editor_user_id' => $editor_user_id
-                ]);
+                ],$notes);
                 echo json_encode(['success' => true, 'message' => 'Product updated successfully.']);
             } else {
                 // Log failed product update

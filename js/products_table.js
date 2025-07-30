@@ -135,12 +135,11 @@ if (canEdit) {
     // Handle form submission inside modal
     editForm.on('submit', function(e) {
         e.preventDefault();
-
         const formData = {};
         $(this).find('input, textarea, select').each(function() {
             const input = $(this);
             const name = input.attr('name');
-            if (name && !input.attr('readonly')) { // Only include editable fields
+            if (name && !input.attr('readonly') && name !== 'updateNotes') { // Only include editable fields
                 if (input.attr('type') === 'checkbox') {
                     formData[name] = input.prop('checked') ? 1 : 0;
                 } else {
@@ -150,6 +149,7 @@ if (canEdit) {
         });
 
         const productId = formData.id; // Get product ID from form
+        const updateNotes = $('#updateNotes').val(); // Capture notes separately
 
         if (!productId) {
             alert('Error: Product ID not found for update.');
@@ -163,7 +163,8 @@ if (canEdit) {
             contentType: 'application/json', // Send as JSON
             data: JSON.stringify({
                 id: productId,
-                data: formData // Send all form data as an object
+                data: formData, // Send all form data as an object
+                notes: updateNotes
             }),
             success: function(response) {
                 if (response.success) {
