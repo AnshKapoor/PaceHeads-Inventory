@@ -1,0 +1,50 @@
+Sample Product Data for the Add Product Form
+===========================================
+
+Use the following values in the dashboard form (`dashboard/products/add.php`) to verify the
+price automation. Enter the base values manually, click **Calculate Prices**, and confirm the
+automatically filled fields match the expected results below.
+
+Base details (enter manually)
+-----------------------------
+SKU: SAMPLE-UVP-001
+Article: Beispiel Kamera Set
+Category: Kameras
+EAN: 4012345678901
+Condition: Neu
+UVP Brutto (msrp_gross): 1499.99
+
+Expected derived prices after pressing "Calculate Prices"
+---------------------------------------------------------
+UVP Netto (msrp_net): 1260.49
+VK Gebraucht (outlet_warranty_gross): 1259.99
+
+Neue Artikel – monatliche Raten (subscription_*_monthly):
+  • 12 Monate: 104.99
+  • 6 Monate: 156.99
+  • 3 Monate: 184.99
+  • 1 Monat: 274.99
+  • Optional 9 Monate (falls Feld vorhanden): 124.99
+
+Neue Artikel – Vorauszahlung (subscription_*_upfront):
+  • 12 Monate: 1133.99
+  • 6 Monate: 847.99
+  • 3 Monate: 498.99
+  • 1 Monat: 274.99
+  • Optional 9 Monate (falls Feld vorhanden): 1011.99
+
+Neue Artikel – Restkauf nach Monatszahlung (buyout_*_monthly):
+  • 12 Monate: 240.00
+  • 6 Monate: 558.00
+  • 3 Monate: 945.00
+  • 1 Monat: 1225.00
+  • Optional 9 Monate (falls Feld vorhanden): 375.00
+
+Neue Artikel – Restkauf nach Vorauszahlung (buyout_*_upfront):
+  • 12 Monate: 366.00
+  • 6 Monate: 652.00
+  • 3 Monate: 1001.00
+  • 1 Monat: 1225.00
+  • Optional 9 Monate (falls Feld vorhanden): 488.00
+
+Leave any remaining optional fields empty or supply your own test data as needed.

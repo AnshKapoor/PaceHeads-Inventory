@@ -27,6 +27,22 @@ export function initializeAddProductPricingAutomation(root = document) {
         subscription_1_upfront: root.getElementById('subscription_1_upfront')
     };
 
+    const buyoutMonthlyInputs = {
+        buyout_12_monthly: root.getElementById('buyout_12_monthly'),
+        buyout_9_monthly: root.getElementById('buyout_9_monthly'),
+        buyout_6_monthly: root.getElementById('buyout_6_monthly'),
+        buyout_3_monthly: root.getElementById('buyout_3_monthly'),
+        buyout_1_monthly: root.getElementById('buyout_1_monthly')
+    };
+
+    const buyoutUpfrontInputs = {
+        buyout_12_upfront: root.getElementById('buyout_12_upfront'),
+        buyout_9_upfront: root.getElementById('buyout_9_upfront'),
+        buyout_6_upfront: root.getElementById('buyout_6_upfront'),
+        buyout_3_upfront: root.getElementById('buyout_3_upfront'),
+        buyout_1_upfront: root.getElementById('buyout_1_upfront')
+    };
+
     const monthlyFormulaDivisors = {
         subscription_9_monthly: 0.83996799359,
         subscription_6_monthly: 0.66661374821,
@@ -66,7 +82,9 @@ export function initializeAddProductPricingAutomation(root = document) {
             }
             const allDerivedInputs = {
                 ...newArticleMonthlyInputs,
-                ...newArticleUpfrontInputs
+                ...newArticleUpfrontInputs,
+                ...buyoutMonthlyInputs,
+                ...buyoutUpfrontInputs
             };
             Object.values(allDerivedInputs).forEach((input) => {
                 if (input) {
@@ -93,6 +111,8 @@ export function initializeAddProductPricingAutomation(root = document) {
         const monthlyValues = {
             subscription_12_monthly: twelveMonthPrice
         };
+
+        const upfrontValues = {};
 
         const w3 = twelveMonthPrice;
         if (!Number.isFinite(w3)) {
@@ -123,24 +143,95 @@ export function initializeAddProductPricingAutomation(root = document) {
         Object.entries(upfrontMultipliers).forEach(([fieldKey, { months, source }]) => {
             const input = newArticleUpfrontInputs[fieldKey];
             const monthlyValue = monthlyValues[source];
-            if (!input || !Number.isFinite(monthlyValue)) {
+            if (!Number.isFinite(monthlyValue)) {
+                upfrontValues[fieldKey] = null;
+                if (input) {
+                    input.value = '';
+                }
                 return;
             }
             const baseUpfront = monthlyValue * months * 0.9;
             const computed = roundToIntegerMinusCent(baseUpfront);
-            if (computed !== null) {
-                input.value = formatPrice(computed);
+            upfrontValues[fieldKey] = computed;
+            if (input) {
+                if (computed !== null) {
+                    input.value = formatPrice(computed);
+                } else {
+                    input.value = '';
+                }
             }
         });
 
         const singleMonthInput = newArticleUpfrontInputs.subscription_1_upfront;
         const oneMonthValue = monthlyValues.subscription_1_monthly;
-        if (singleMonthInput && Number.isFinite(oneMonthValue)) {
+        if (Number.isFinite(oneMonthValue)) {
             const computed = roundToIntegerMinusCent(oneMonthValue);
-            if (computed !== null) {
-                singleMonthInput.value = formatPrice(computed);
+            upfrontValues.subscription_1_upfront = computed;
+            if (singleMonthInput) {
+                if (computed !== null) {
+                    singleMonthInput.value = formatPrice(computed);
+                } else {
+                    singleMonthInput.value = '';
+                }
+            }
+        } else {
+            upfrontValues.subscription_1_upfront = null;
+            if (singleMonthInput) {
+                singleMonthInput.value = '';
             }
         }
+
+        const buyoutMonthlyConfig = {
+            buyout_12_monthly: { months: 12, source: 'subscription_12_monthly' },
+            buyout_9_monthly: { months: 9, source: 'subscription_9_monthly' },
+            buyout_6_monthly: { months: 6, source: 'subscription_6_monthly' },
+            buyout_3_monthly: { months: 3, source: 'subscription_3_monthly' },
+            buyout_1_monthly: { months: 1, source: 'subscription_1_monthly' }
+        };
+
+        Object.entries(buyoutMonthlyConfig).forEach(([fieldKey, { months, source }]) => {
+            const input = buyoutMonthlyInputs[fieldKey];
+            if (!input) {
+                return;
+            }
+            const monthlyValue = monthlyValues[source];
+            if (!Number.isFinite(monthlyValue)) {
+                input.value = '';
+                return;
+            }
+            const computed = Math.round(basePrice - months * monthlyValue);
+            if (Number.isFinite(computed)) {
+                input.value = formatPrice(computed);
+            } else {
+                input.value = '';
+            }
+        });
+
+        const buyoutUpfrontConfig = {
+            buyout_12_upfront: 'subscription_12_upfront',
+            buyout_9_upfront: 'subscription_9_upfront',
+            buyout_6_upfront: 'subscription_6_upfront',
+            buyout_3_upfront: 'subscription_3_upfront',
+            buyout_1_upfront: 'subscription_1_upfront'
+        };
+
+        Object.entries(buyoutUpfrontConfig).forEach(([fieldKey, source]) => {
+            const input = buyoutUpfrontInputs[fieldKey];
+            if (!input) {
+                return;
+            }
+            const upfrontValue = upfrontValues[source];
+            if (!Number.isFinite(upfrontValue)) {
+                input.value = '';
+                return;
+            }
+            const computed = Math.round(basePrice - upfrontValue);
+            if (Number.isFinite(computed)) {
+                input.value = formatPrice(computed);
+            } else {
+                input.value = '';
+            }
+        });
     };
 
     basePriceInput.addEventListener('input', updateDerivedFields);
