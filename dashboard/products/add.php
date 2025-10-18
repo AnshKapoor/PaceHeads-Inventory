@@ -204,7 +204,24 @@ $conn->close(); // Close database connection
         <div class="form-group"><label for="profit_eur">Profit EUR:</label><input type="number" step="0.0001" id="profit_eur" name="profit_eur" value="<?php echo htmlspecialchars($_POST['profit_eur'] ?? ''); ?>"></div>
         <div class="form-group"><label for="profit_percent">Profit Percent:</label><input type="number" step="0.0001" id="profit_percent" name="profit_percent" value="<?php echo htmlspecialchars($_POST['profit_percent'] ?? ''); ?>"></div>
 
+        <button type="button" class="action-button" id="calculate-prices">Calculate Prices</button>
         <button type="submit" class="action-button">Add Product</button>
     </form>
 </div>
+
+<script type="module">
+import { initializeAddProductPricingAutomation } from '../../js/add-product-pricing.js';
+
+document.addEventListener('DOMContentLoaded', () => {
+    const automation = initializeAddProductPricingAutomation();
+    const calculateButton = document.getElementById('calculate-prices');
+
+    if (automation && calculateButton) {
+        calculateButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            automation.triggerCalculation();
+        });
+    }
+});
+</script>
 
