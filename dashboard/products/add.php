@@ -208,3 +208,11 @@ $conn->close(); // Close database connection
     </form>
 </div>
 
+<script type="module">
+import { initializeAddProductPricingAutomation } from '../../js/add-product-pricing.js';
+
+document.addEventListener('DOMContentLoaded', () => {
+    initializeAddProductPricingAutomation();
+});
+</script>
+
