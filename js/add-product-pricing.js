@@ -1,11 +1,11 @@
 export function initializeAddProductPricingAutomation(root = document) {
     if (!root) {
-        return;
+        return null;
     }
 
     const basePriceInput = root.getElementById('msrp_gross');
     if (!basePriceInput) {
-        return;
+        return null;
     }
 
     const uvpNettoInput = root.getElementById('msrp_net');
@@ -145,4 +145,10 @@ export function initializeAddProductPricingAutomation(root = document) {
 
     basePriceInput.addEventListener('input', updateDerivedFields);
     updateDerivedFields();
+
+    return {
+        triggerCalculation: () => {
+            updateDerivedFields();
+        }
+    };
 }
