@@ -294,6 +294,7 @@ $conn->close(); // Close database connection
         <div class="form-group"><label for="profit_eur">Profit EUR:</label><input type="number" step="0.0001" id="profit_eur" name="profit_eur" value="<?php echo htmlspecialchars($_POST['profit_eur'] ?? ''); ?>"></div>
         <div class="form-group"><label for="profit_percent">Profit Percent:</label><input type="number" step="0.0001" id="profit_percent" name="profit_percent" value="<?php echo htmlspecialchars($_POST['profit_percent'] ?? ''); ?>"></div>
 
+        <!-- Place action buttons after the inputs so they align along the full grid width. -->
         <button type="button" class="action-button" id="calculate-prices">Calculate Prices</button>
         <button type="submit" class="action-button">Add Product</button>
     </form>
