@@ -23,9 +23,11 @@
     font-size: 0.95em;
 }
 
+/* Align select controls with text and number inputs for a consistent layout. */
 .add-product-form input[type="text"],
 .add-product-form input[type="number"],
-.add-product-form textarea {
+.add-product-form textarea,
+.add-product-form select {
     width: 100%;
     padding: 10px 12px;
     border: 1px solid #ced4da;
@@ -40,21 +42,30 @@
 
 .add-product-form input[type="text"]:hover,
 .add-product-form input[type="number"]:hover,
-.add-product-form textarea:hover {
+.add-product-form textarea:hover,
+.add-product-form select:hover {
     border-color: #a0c0e0;
 }
 
 .add-product-form input[type="text"]:focus,
 .add-product-form input[type="number"]:focus,
-.add-product-form textarea:focus {
+.add-product-form textarea:focus,
+.add-product-form select:focus {
     border-color: #60b8d4;
     box-shadow: 0 0 0 0.25rem rgba(96, 184, 212, 0.25);
     outline: none;
 }
 
-.add-product-form button[type="submit"] {
+/* Ensure the action buttons span the full grid width and sit below the inputs. */
+.add-product-form .action-button {
     grid-column: 1 / -1;
+    width: 100%;
     padding: 15px 30px;
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.add-product-form button[type="submit"] {
     background-color: #28a745;
     color: white;
     border: none;
@@ -63,7 +74,7 @@
     font-size: 1.2em;
     font-weight: 700;
     transition: background-color 0.2s ease, transform 0.2s ease;
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
 .add-product-form button[type="submit"]:hover {
