@@ -2,8 +2,6 @@
 // FIX: Explicitly include config.php here
 require_once '../../config.php'; // Path from dashboard/logs/ to config.php
 require_once '../../functions.php';
-// Include the dashboard header, which handles login check and layout
-
 
 // Access control: Only super admins can view this page
 if (!has_special_edit_access()) {
@@ -11,6 +9,10 @@ if (!has_special_edit_access()) {
 }
 
 $page_title = "System Activity Log"; // Specific page title for this view
+/** @var string $page_title Holds the human-readable title for the activity log page. */
+
+// Reuse the shared dashboard header so we get the standard navigation and layout.
+include '../partials/header.php';
 
 ?>
 

@@ -4,7 +4,9 @@ require_once  __DIR__ . '/../../config.php';
 start_session_once();
 
 if (!is_logged_in()) {
-    redirect('../index.php'); // Redirect to login if not logged in
+    /** @var string $loginRedirectUrl Absolute URL to the login page when the session is invalid. */
+    $loginRedirectUrl = BASE_URL . 'index.php';
+    redirect($loginRedirectUrl); // Redirect to login if not logged in
 }
 
 $current_username = $_SESSION['username'];
@@ -15,6 +17,8 @@ $edit_access_display = $_SESSION['has_edit_access'] ? '✅' : '❌';
 $special_edit_access_display = $_SESSION['has_special_edit_access'] ? '✅' : '❌';
 
 $page_title = isset($page_title) ? htmlspecialchars($page_title) : 'Dashboard';
+/** @var string $logoutUrl Absolute URL to trigger logout from any dashboard location. */
+$logoutUrl = BASE_URL . 'index.php?logout=true';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -40,7 +44,7 @@ $page_title = isset($page_title) ? htmlspecialchars($page_title) : 'Dashboard';
     SE: <?php echo $special_edit_access_display; ?>)
 </div>
 
-            <a href="../index.php?logout=true" class="logout-button">Logout</a>
+            <a href="<?php echo htmlspecialchars($logoutUrl); ?>" class="logout-button">Logout</a>
         </div>
     </header>
     <main class="dashboard-main-content">
