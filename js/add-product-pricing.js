@@ -4,6 +4,7 @@ export function initializeAddProductPricingAutomation(root = document) {
     }
 
     const basePriceInput = root.getElementById('msrp_gross');
+    const conditionInput = root.getElementById('condition_display');
     if (!basePriceInput) {
         return null;
     }
@@ -43,12 +44,21 @@ export function initializeAddProductPricingAutomation(root = document) {
         buyout_1_upfront: root.getElementById('buyout_1_upfront')
     };
 
-    const monthlyFormulaDivisors = {
+    const monthlyFormulaDivisorsNew = {
         subscription_9_monthly: 0.83996799359,
         subscription_6_monthly: 0.66661374821,
         subscription_3_monthly: 0.56750912285,
         subscription_1_monthly: 0.38176197836
     };
+
+    const monthlyFormulaDivisorsUsed = {
+        subscription_9_monthly: 0.84996249062,
+        subscription_6_monthly: 0.66661374821,
+        subscription_3_monthly: 0.56750912285,
+        subscription_1_monthly: 0.38176197836
+    };
+
+    const newTwelveMonthMultiplier = (basePrice) => (basePrice < 200 ? 0.07 : 0.0625);
 
     const parseNumber = (value) => {
         if (typeof value !== 'string') {
@@ -103,7 +113,14 @@ export function initializeAddProductPricingAutomation(root = document) {
             usedPriceInput.value = formatPrice(usedPrice);
         }
 
-        const twelveMonthPrice = roundToIntegerMinusCent(basePrice * 0.07);
+        const conditionValue = (conditionInput?.value || '').trim().toLowerCase();
+        const isUsedArticle = conditionValue === 'used' || conditionValue === 'refurbished';
+
+        const baseTwelveMonthPrice = roundToIntegerMinusCent(basePrice * newTwelveMonthMultiplier(basePrice));
+        const twelveMonthPrice = isUsedArticle
+            ? roundToIntegerMinusCent(baseTwelveMonthPrice * 0.80947844724)
+            : baseTwelveMonthPrice;
+
         if (newArticleMonthlyInputs.subscription_12_monthly && twelveMonthPrice !== null) {
             newArticleMonthlyInputs.subscription_12_monthly.value = formatPrice(twelveMonthPrice);
         }
@@ -118,6 +135,8 @@ export function initializeAddProductPricingAutomation(root = document) {
         if (!Number.isFinite(w3)) {
             return;
         }
+
+        const monthlyFormulaDivisors = isUsedArticle ? monthlyFormulaDivisorsUsed : monthlyFormulaDivisorsNew;
 
         Object.entries(monthlyFormulaDivisors).forEach(([fieldKey, divisor]) => {
             const input = newArticleMonthlyInputs[fieldKey];
@@ -189,6 +208,8 @@ export function initializeAddProductPricingAutomation(root = document) {
             buyout_1_monthly: { months: 1, source: 'subscription_1_monthly' }
         };
 
+        const buyoutBasePrice = isUsedArticle && Number.isFinite(usedPrice) ? usedPrice : basePrice;
+
         Object.entries(buyoutMonthlyConfig).forEach(([fieldKey, { months, source }]) => {
             const input = buyoutMonthlyInputs[fieldKey];
             if (!input) {
@@ -199,7 +220,7 @@ export function initializeAddProductPricingAutomation(root = document) {
                 input.value = '';
                 return;
             }
-            const computed = Math.round(basePrice - months * monthlyValue);
+            const computed = Math.round(buyoutBasePrice - months * monthlyValue);
             if (Number.isFinite(computed)) {
                 input.value = formatPrice(computed);
             } else {
@@ -225,7 +246,7 @@ export function initializeAddProductPricingAutomation(root = document) {
                 input.value = '';
                 return;
             }
-            const computed = Math.round(basePrice - upfrontValue);
+            const computed = Math.round(buyoutBasePrice - upfrontValue);
             if (Number.isFinite(computed)) {
                 input.value = formatPrice(computed);
             } else {
@@ -235,6 +256,9 @@ export function initializeAddProductPricingAutomation(root = document) {
     };
 
     basePriceInput.addEventListener('input', updateDerivedFields);
+    if (conditionInput) {
+        conditionInput.addEventListener('change', updateDerivedFields);
+    }
     updateDerivedFields();
 
     return {
