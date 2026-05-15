@@ -42,6 +42,15 @@ $decimal_columns = [
     'outlet_no_warranty_gross', 'outlet_no_warranty_net',
     'pp_gross', 'pp_net', 'profit_eur', 'profit_percent'
 ];
+$optional_decimal_columns = [
+    'outlet_warranty_net',
+    'outlet_no_warranty_gross',
+    'outlet_no_warranty_net',
+    'pp_gross',
+    'pp_net',
+    'profit_eur',
+    'profit_percent'
+];
 // Define columns that are INTEGER types (use 'i' for bind_param)
 $integer_columns = [
     'id', 'created_by', 'updated_by' // Add other int columns if you have them, excluding those you want to treat as string for input
@@ -247,9 +256,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 continue; // Cannot edit ID, timestamps, or original creator directly via form
             }
 
-            // Convert empty strings to NULL for database
+            // Convert empty strings to NULL for database.
+            if (is_string($value)) {
+                $value = trim($value);
+            }
             if ($value === '') {
                 $value = null;
+            }
+
+            if ($value === null && in_array($field_name, $optional_decimal_columns, true)) {
+                // Explicitly allow these pricing fields to be cleared.
+            } elseif (in_array($field_name, $decimal_columns, true) && $value !== null && !is_numeric($value)) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => "Invalid numerical value for $field_name."]);
+                $conn->close();
+                exit();
+            } elseif (in_array($field_name, $integer_columns, true) && $value !== null && !ctype_digit(strval($value))) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => "Invalid integer value for $field_name."]);
+                $conn->close();
+                exit();
             }
 
             // --- NEW: Compare with Original Data to find actual CHANGES ---
