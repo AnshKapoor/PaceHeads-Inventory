@@ -23,7 +23,10 @@ $(document).ready(function() {
         "searchable": false, // Cannot be searched
         "render": function (data, type, row) {
           if (canEdit) { // 'canEdit' is passed from PHP (true/false based on user role)
-                return '<button class="edit-button action-button" data-id="' + row.id + '">Edit</button>';
+                return '<div class="product-actions">' +
+                    '<button class="edit-button action-button" data-id="' + row.id + '">Edit</button>' +
+                    '<button class="delete-button action-button" data-id="' + row.id + '">Delete</button>' +
+                    '</div>';
             } else {
                 return ''; // Return an empty string if user cannot edit
             }
@@ -66,7 +69,7 @@ $(document).ready(function() {
     let currentRowData = null; // Store data of the row being edited
 
     // Open modal on Edit button click (only if canEdit is true)
-if (canEdit) {
+    if (canEdit) {
     const modal = $('#editProductModal');
     const closeButton = $('.close-button');
     const editForm = $('#editProductForm');
@@ -118,7 +121,47 @@ if (canEdit) {
         }
     });
 
-    // ... (rest of your modal close and submit logic) ...
+    $('#productsTable tbody').on('click', '.delete-button', function() {
+        const deleteButton = $(this);
+        const row = deleteButton.parents('tr');
+        const product = productsTable.row(row).data();
+
+        if (!product) {
+            alert('Error: Product data could not be found.');
+            return;
+        }
+
+        const productLabel = product.article || product.sku || ('Product #' + product.id);
+        if (!window.confirm('Delete "' + productLabel + '"? This action cannot be undone.')) {
+            return;
+        }
+
+        deleteButton.prop('disabled', true);
+
+        $.ajax({
+            url: BASE_URL_JS + "dashboard/products/api/delete_product.php",
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ id: product.id }),
+            success: function(response) {
+                if (response.success) {
+                    alert(response.message);
+                    productsTable.ajax.reload(null, false);
+                } else {
+                    alert('Error deleting product: ' + response.message);
+                    deleteButton.prop('disabled', false);
+                }
+            },
+            error: function(xhr) {
+                const response = xhr.responseJSON;
+                const message = response && response.message
+                    ? response.message
+                    : 'The product could not be deleted.';
+                alert('Error deleting product: ' + message);
+                deleteButton.prop('disabled', false);
+            }
+        });
+    });
 }
     // Close modal when 'x' is clicked
     closeButton.on('click', function() {

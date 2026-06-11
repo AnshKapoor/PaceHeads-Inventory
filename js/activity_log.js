@@ -203,6 +203,30 @@ function formatLogDetails(actionType, detailsJsonString) {
       html += "</ul>";
       break;
 
+    case "PRODUCT_DELETE":
+      html +=
+        '<p class="detail-title updated"><strong>Product Deleted:</strong></p>';
+      html += "<ul>";
+      html += `<li><strong>Product ID:</strong> ${details.product_id || "N/A"}</li>`;
+      if (details.deleted_product) {
+        html += `<li><strong>Article:</strong> ${details.deleted_product.article || "N/A"}</li>`;
+        html += `<li><strong>SKU:</strong> ${details.deleted_product.sku || "N/A"}</li>`;
+      }
+      html += `<li><strong>Deleted By User ID:</strong> ${details.deleted_by_user_id || "N/A"}</li>`;
+      html += "</ul>";
+      break;
+
+    case "PRODUCT_DELETE_FAILED":
+      html +=
+        '<p class="detail-title failed"><strong>Product Deletion Failed:</strong></p>';
+      html += "<ul>";
+      html += `<li><strong>Product ID:</strong> ${details.product_id || "N/A"}</li>`;
+      if (details.error_message) {
+        html += `<li><strong>Error:</strong> <span class="error-text">${details.error_message}</span></li>`;
+      }
+      html += "</ul>";
+      break;
+
     case "USER_ADD":
       html +=
         '<p class="detail-title added"><strong>New User Added:</strong></p>';

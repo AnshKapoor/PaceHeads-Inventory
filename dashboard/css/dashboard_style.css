@@ -251,6 +251,30 @@ body {
     background-color: #50a8c4;
 }
 
+.product-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.product-actions .action-button {
+    margin-top: 0;
+}
+
+.product-actions .delete-button {
+    background-color: #dc3545;
+}
+
+.product-actions .delete-button:hover {
+    background-color: #bd2130;
+}
+
+.product-actions .delete-button:disabled {
+    cursor: wait;
+    opacity: 0.65;
+}
+
 /* Style for the View Details button */
 .view-details-button {
     background-color: #3745b5; /* A different color for distinction */
