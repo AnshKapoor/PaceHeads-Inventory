@@ -1,47 +1,61 @@
-export function initializeAddProductPricingAutomation(root = document) {
+export function initializeAddProductPricingAutomation(root = document, options = {}) {
     if (!root) {
         return null;
     }
 
-    const basePriceInput = root.getElementById('msrp_gross');
-    const conditionInput = root.getElementById('condition_display');
+    const {
+        idPrefix = '',
+        conditionField = 'condition_display',
+        autoUpdate = true,
+        calculateOnInit = true
+    } = options;
+    const getInput = (fieldName) => {
+        const id = `${idPrefix}${fieldName}`;
+        if (typeof root.getElementById === 'function') {
+            return root.getElementById(id);
+        }
+        return root.querySelector(`#${id}`);
+    };
+
+    const basePriceInput = getInput('msrp_gross');
+    const conditionInput = getInput(conditionField);
     if (!basePriceInput) {
         return null;
     }
 
-    const uvpNettoInput = root.getElementById('msrp_net');
-    const usedPriceInput = root.getElementById('outlet_warranty_gross');
+    const uvpNettoInput = getInput('msrp_net');
+    const usedPriceInput = getInput('outlet_warranty_gross');
 
     const newArticleMonthlyInputs = {
-        subscription_12_monthly: root.getElementById('subscription_12_monthly'),
-        subscription_9_monthly: root.getElementById('subscription_9_monthly'),
-        subscription_6_monthly: root.getElementById('subscription_6_monthly'),
-        subscription_3_monthly: root.getElementById('subscription_3_monthly'),
-        subscription_1_monthly: root.getElementById('subscription_1_monthly')
+        subscription_12_monthly: getInput('subscription_12_monthly'),
+        subscription_9_monthly: getInput('subscription_9_monthly'),
+        subscription_6_monthly: getInput('subscription_6_monthly'),
+        subscription_3_monthly: getInput('subscription_3_monthly'),
+        subscription_1_monthly: getInput('subscription_1_monthly')
     };
 
     const newArticleUpfrontInputs = {
-        subscription_12_upfront: root.getElementById('subscription_12_upfront'),
-        subscription_9_upfront: root.getElementById('subscription_9_upfront'),
-        subscription_6_upfront: root.getElementById('subscription_6_upfront'),
-        subscription_3_upfront: root.getElementById('subscription_3_upfront'),
-        subscription_1_upfront: root.getElementById('subscription_1_upfront')
+        subscription_12_upfront: getInput('subscription_12_upfront'),
+        subscription_9_upfront: getInput('subscription_9_upfront'),
+        subscription_6_upfront: getInput('subscription_6_upfront'),
+        subscription_3_upfront: getInput('subscription_3_upfront'),
+        subscription_1_upfront: getInput('subscription_1_upfront')
     };
 
     const buyoutMonthlyInputs = {
-        buyout_12_monthly: root.getElementById('buyout_12_monthly'),
-        buyout_9_monthly: root.getElementById('buyout_9_monthly'),
-        buyout_6_monthly: root.getElementById('buyout_6_monthly'),
-        buyout_3_monthly: root.getElementById('buyout_3_monthly'),
-        buyout_1_monthly: root.getElementById('buyout_1_monthly')
+        buyout_12_monthly: getInput('buyout_12_monthly'),
+        buyout_9_monthly: getInput('buyout_9_monthly'),
+        buyout_6_monthly: getInput('buyout_6_monthly'),
+        buyout_3_monthly: getInput('buyout_3_monthly'),
+        buyout_1_monthly: getInput('buyout_1_monthly')
     };
 
     const buyoutUpfrontInputs = {
-        buyout_12_upfront: root.getElementById('buyout_12_upfront'),
-        buyout_9_upfront: root.getElementById('buyout_9_upfront'),
-        buyout_6_upfront: root.getElementById('buyout_6_upfront'),
-        buyout_3_upfront: root.getElementById('buyout_3_upfront'),
-        buyout_1_upfront: root.getElementById('buyout_1_upfront')
+        buyout_12_upfront: getInput('buyout_12_upfront'),
+        buyout_9_upfront: getInput('buyout_9_upfront'),
+        buyout_6_upfront: getInput('buyout_6_upfront'),
+        buyout_3_upfront: getInput('buyout_3_upfront'),
+        buyout_1_upfront: getInput('buyout_1_upfront')
     };
 
     const monthlyFormulaDivisorsNew = {
@@ -255,11 +269,15 @@ export function initializeAddProductPricingAutomation(root = document) {
         });
     };
 
-    basePriceInput.addEventListener('input', updateDerivedFields);
-    if (conditionInput) {
-        conditionInput.addEventListener('change', updateDerivedFields);
+    if (autoUpdate) {
+        basePriceInput.addEventListener('input', updateDerivedFields);
+        if (conditionInput) {
+            conditionInput.addEventListener('change', updateDerivedFields);
+        }
     }
-    updateDerivedFields();
+    if (calculateOnInit) {
+        updateDerivedFields();
+    }
 
     return {
         triggerCalculation: () => {

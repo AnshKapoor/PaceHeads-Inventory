@@ -109,7 +109,9 @@ $page_title = "Product Management";
     <label for="updateNotes"><strong>Update Notes</strong></label>
     <textarea id="updateNotes" name="updateNotes" rows="3" style="width:100%;"></textarea>
 </div>
-            <div class="form-group"><label for="modal_updated_by">Updated By:</label><input type="text" id="modal_updated_by" name="updated_by_username" readonly></div> <button type="submit" class="action-button">Save Changes</button>
+            <div class="form-group"><label for="modal_updated_by">Updated By:</label><input type="text" id="modal_updated_by" name="updated_by_username" readonly></div>
+            <button type="button" class="action-button edit-form-action" id="calculate-edit-prices">Calculate Prices</button>
+            <button type="submit" class="action-button edit-form-action">Save Changes</button>
             
         </form>
     </div>
@@ -135,6 +137,25 @@ $page_title = "Product Management";
   
 </script>
 <script src="../../js/products_table.js"></script>
+<script type="module">
+import { initializeAddProductPricingAutomation } from '../../js/add-product-pricing.js';
+
+document.addEventListener('DOMContentLoaded', () => {
+    const calculator = initializeAddProductPricingAutomation(document, {
+        idPrefix: 'modal_',
+        conditionField: 'condition',
+        autoUpdate: false,
+        calculateOnInit: false
+    });
+    const calculateButton = document.getElementById('calculate-edit-prices');
+
+    if (calculator && calculateButton) {
+        calculateButton.addEventListener('click', () => {
+            calculator.triggerCalculation();
+        });
+    }
+});
+</script>
 
 <!-- <?php
 // Include the dashboard footer
