@@ -66,7 +66,49 @@ $(document).ready(function() {
     const modal = $('#editProductModal');
     const closeButton = $('.close-button');
     const editForm = $('#editProductForm');
+    const deleteConfirmModal = $('#deleteConfirmModal');
+    const deleteConfirmMessage = $('#deleteConfirmMessage');
+    const cancelProductDelete = $('#cancelProductDelete');
+    const confirmProductDelete = $('#confirmProductDelete');
     let currentRowData = null; // Store data of the row being edited
+    let pendingDelete = null;
+
+    function closeDeleteConfirmation() {
+        deleteConfirmModal.css('display', 'none');
+
+        if (pendingDelete) {
+            pendingDelete.button.trigger('focus');
+            pendingDelete = null;
+        }
+    }
+
+    function deleteProduct(product, deleteButton) {
+        deleteButton.prop('disabled', true);
+
+        $.ajax({
+            url: BASE_URL_JS + "dashboard/products/api/delete_product.php",
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ id: product.id }),
+            success: function(response) {
+                if (response.success) {
+                    alert(response.message);
+                    productsTable.ajax.reload(null, false);
+                } else {
+                    alert('Error deleting product: ' + response.message);
+                    deleteButton.prop('disabled', false);
+                }
+            },
+            error: function(xhr) {
+                const response = xhr.responseJSON;
+                const message = response && response.message
+                    ? response.message
+                    : 'The product could not be deleted.';
+                alert('Error deleting product: ' + message);
+                deleteButton.prop('disabled', false);
+            }
+        });
+    }
 
     // Open modal on Edit button click (only if canEdit is true)
     if (canEdit) {
@@ -98,6 +140,19 @@ $(document).ready(function() {
                     if (name && currentRowData.hasOwnProperty(name)) {
                         if (input.attr('type') === 'checkbox') {
                             input.prop('checked', currentRowData[name] == 1);
+                        } else if (input.is('select')) {
+                            const currentValue = currentRowData[name] ?? '';
+
+                            if (currentValue && !input.find('option').filter(function() {
+                                return $(this).val() === String(currentValue);
+                            }).length) {
+                                input.append($('<option>', {
+                                    value: currentValue,
+                                    text: currentValue
+                                }));
+                            }
+
+                            input.val(currentValue);
                         } else if (input.attr('readonly')) { // For read-only display fields (like created_by_username)
                             // For columns like created_by (ID), updated_by (ID) which have usernames for display
                             if (name === 'created_by') {
@@ -132,35 +187,36 @@ $(document).ready(function() {
         }
 
         const productLabel = product.article || product.sku || ('Product #' + product.id);
-        if (!window.confirm('Delete "' + productLabel + '"? This action cannot be undone.')) {
+        pendingDelete = { product: product, button: deleteButton };
+        deleteConfirmMessage.text('"' + productLabel + '" will be permanently removed. This action cannot be undone.');
+        deleteConfirmModal.css('display', 'flex');
+        cancelProductDelete.trigger('focus');
+    });
+
+    cancelProductDelete.on('click', closeDeleteConfirmation);
+
+    confirmProductDelete.on('click', function() {
+        if (!pendingDelete) {
             return;
         }
 
-        deleteButton.prop('disabled', true);
+        const productToDelete = pendingDelete.product;
+        const deleteButton = pendingDelete.button;
+        pendingDelete = null;
+        deleteConfirmModal.css('display', 'none');
+        deleteProduct(productToDelete, deleteButton);
+    });
 
-        $.ajax({
-            url: BASE_URL_JS + "dashboard/products/api/delete_product.php",
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ id: product.id }),
-            success: function(response) {
-                if (response.success) {
-                    alert(response.message);
-                    productsTable.ajax.reload(null, false);
-                } else {
-                    alert('Error deleting product: ' + response.message);
-                    deleteButton.prop('disabled', false);
-                }
-            },
-            error: function(xhr) {
-                const response = xhr.responseJSON;
-                const message = response && response.message
-                    ? response.message
-                    : 'The product could not be deleted.';
-                alert('Error deleting product: ' + message);
-                deleteButton.prop('disabled', false);
-            }
-        });
+    deleteConfirmModal.on('click', function(event) {
+        if (event.target === this) {
+            closeDeleteConfirmation();
+        }
+    });
+
+    $(document).on('keydown', function(event) {
+        if (event.key === 'Escape' && deleteConfirmModal.is(':visible')) {
+            closeDeleteConfirmation();
+        }
     });
 }
     // Close modal when 'x' is clicked

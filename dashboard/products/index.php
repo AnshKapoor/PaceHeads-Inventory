@@ -2,6 +2,17 @@
 include '../partials/header.php';
 require_once '../../config.php';
 $can_edit = has_edit_access() || has_special_edit_access();
+$category_options = [];
+$category_result = $conn->query('SELECT name FROM categories ORDER BY name ASC');
+
+if ($category_result) {
+    while ($category_row = $category_result->fetch_assoc()) {
+        if (!empty($category_row['name'])) {
+            $category_options[] = (string) $category_row['name'];
+        }
+    }
+    $category_result->free();
+}
 
 $page_title = "Product Management";
 ?>
@@ -60,18 +71,39 @@ $page_title = "Product Management";
     </table>
 </div>
 
-<div id="editProductModal" class="modal">
-    <div class="modal-content">
-        <span class="close-button">&times;</span>
-        <h2>Edit Product</h2>
+<div id="editProductModal" class="modal edit-product-modal" role="dialog" aria-modal="true" aria-labelledby="editProductTitle">
+    <div class="modal-content edit-product-content">
+        <div class="edit-modal-header">
+            <div>
+                <span class="edit-modal-eyebrow">Product management</span>
+                <h2 id="editProductTitle">Edit Product</h2>
+                <p>Update product details, pricing, and internal notes.</p>
+            </div>
+            <button type="button" class="close-button" aria-label="Close edit product form">&times;</button>
+        </div>
         <form id="editProductForm">
             <input type="hidden" id="modal_id" name="id">
 
             <div class="form-group"><label for="modal_sku">SKU:</label><input type="text" id="modal_sku" name="sku"></div>
             <div class="form-group"><label for="modal_article">Article:</label><input type="text" id="modal_article" name="article"></div>
-            <div class="form-group"><label for="modal_category">Category:</label><input type="text" id="modal_category" name="category"></div>
+            <div class="form-group">
+                <label for="modal_category">Category:</label>
+                <select id="modal_category" name="category">
+                    <option value="">Select a category</option>
+                    <?php foreach ($category_options as $category_name): ?>
+                        <option value="<?php echo htmlspecialchars($category_name); ?>"><?php echo htmlspecialchars($category_name); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
             <div class="form-group"><label for="modal_ean">EAN:</label><input type="text" id="modal_ean" name="ean"></div>
-            <div class="form-group"><label for="modal_condition">Condition:</label><input type="text" id="modal_condition" name="condition"></div>
+            <div class="form-group">
+                <label for="modal_condition">Condition:</label>
+                <select id="modal_condition" name="condition">
+                    <option value="">Select condition</option>
+                    <option value="NEW">New</option>
+                    <option value="REFURBISHED">Used</option>
+                </select>
+            </div>
 
             <div class="form-group"><label for="modal_subscription_1_monthly">Sub 1M:</label><input type="number" step="0.01" id="modal_subscription_1_monthly" name="subscription_1_monthly"></div>
             <div class="form-group"><label for="modal_subscription_3_monthly">Sub 3M:</label><input type="number" step="0.01" id="modal_subscription_3_monthly" name="subscription_3_monthly"></div>
@@ -105,15 +137,28 @@ $page_title = "Product Management";
             <div class="form-group"><label for="modal_created_by">Created By:</label><input type="text" id="modal_created_by" name="created_by" readonly></div>
             <div class="form-group"><label for="modal_created_at">Created At:</label><input type="text" id="modal_created_at" name="created_at" readonly></div>
             <div class="form-group"><label for="modal_updated_at">Updated At:</label><input type="text" id="modal_updated_at" name="updated_at" readonly></div>
-            <div class="form-group">
-    <label for="updateNotes"><strong>Update Notes</strong></label>
-    <textarea id="updateNotes" name="updateNotes" rows="3" style="width:100%;"></textarea>
-</div>
+            <div class="form-group update-notes-group">
+                <label for="updateNotes">Update Notes</label>
+                <textarea id="updateNotes" name="updateNotes" rows="3" placeholder="Describe what changed and why..."></textarea>
+            </div>
             <div class="form-group"><label for="modal_updated_by">Updated By:</label><input type="text" id="modal_updated_by" name="updated_by_username" readonly></div>
-            <button type="button" class="action-button edit-form-action" id="calculate-edit-prices">Calculate Prices</button>
-            <button type="submit" class="action-button edit-form-action">Save Changes</button>
-            
+            <div class="edit-form-actions">
+                <button type="button" class="action-button edit-form-action calculate-prices-button" id="calculate-edit-prices">Calculate Prices</button>
+                <button type="submit" class="action-button edit-form-action save-product-button">Save Changes</button>
+            </div>
         </form>
+    </div>
+</div>
+
+<div id="deleteConfirmModal" class="modal delete-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="deleteConfirmTitle" aria-describedby="deleteConfirmMessage">
+    <div class="delete-confirm-content">
+        <div class="delete-confirm-icon" aria-hidden="true">!</div>
+        <h2 id="deleteConfirmTitle">Delete product?</h2>
+        <p id="deleteConfirmMessage">This action cannot be undone.</p>
+        <div class="delete-confirm-actions">
+            <button type="button" class="delete-cancel-button" id="cancelProductDelete">Cancel</button>
+            <button type="button" class="delete-confirm-button" id="confirmProductDelete">Delete product</button>
+        </div>
     </div>
 </div>
 

@@ -125,34 +125,32 @@ body {
 
 /* --- Modal Styles --- */
 .modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1000; /* Sit on top of everything else */
+    display: none;
+    position: fixed;
+    z-index: 1000;
     left: 0;
     top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed for long content */
-    background-color: rgba(0,0,0,0.4); /* Black w/ opacity - The overlay background */
-  /* Use flexbox to center content */
-    align-items: center; /* Center vertically */
-    justify-content: center; /* Center horizontally */
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(18, 24, 40, 0.58);
+    align-items: center;
+    justify-content: center;
 }
 
 .modal-content {
-    background-color: #fefefe;
-    /* Remove margin: 5% auto; - flexbox handles centering */
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
     padding: 30px;
-    border: 1px solid #888;
-    width: 90%; /* Adjust width */
-    max-width: 800px; /* Max width for larger screens */
+    overflow-y: auto;
+    position: relative;
+    border: 1px solid #dfe3ee;
     border-radius: 8px;
+    background-color: #fefefe;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    position: relative; /* Keep relative for inner positioning if needed */
     animation-name: animatetop;
     animation-duration: 0.4s;
-    max-height: 90vh; /* Max height to allow scrolling within modal if content is long */
-    overflow-y: auto; /* Enable scrolling for content inside modal */
 }
 
 /* Add animation (from https://www.w3schools.com/howto/howto_css_modals.asp) */
@@ -167,73 +165,245 @@ body {
 }
 
 .close-button {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
+    display: flex;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid #e0e4ec;
+    border-radius: 10px;
+    background-color: #f7f8fb;
+    color: #7b8494;
     cursor: pointer;
+    font-size: 25px;
+    line-height: 1;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
 .close-button:hover,
 .close-button:focus {
-    color: black;
+    background-color: #eef0f6;
+    color: #252b36;
     text-decoration: none;
+    transform: rotate(4deg);
 }
 
-/* Modal Form Specifics (keep these as they define the inner form layout) */
+.edit-product-modal {
+    padding: 24px;
+    box-sizing: border-box;
+    backdrop-filter: blur(4px);
+}
+
+.edit-product-content {
+    width: 100%;
+    max-width: 1080px;
+    padding: 0;
+    border: none;
+    border-radius: 18px;
+    background-color: #f7f8fc;
+    box-shadow: 0 24px 70px rgba(18, 24, 40, 0.28);
+}
+
+.edit-modal-header {
+    display: flex;
+    position: sticky;
+    z-index: 2;
+    top: 0;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 24px 28px;
+    border-bottom: 1px solid #e3e6ef;
+    border-radius: 18px 18px 0 0;
+    background: linear-gradient(135deg, #ffffff 0%, #f2f4ff 100%);
+}
+
+.edit-modal-eyebrow {
+    display: block;
+    margin-bottom: 5px;
+    color: #5367d5;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.edit-modal-header h2 {
+    margin: 0;
+    color: #252b36;
+    font-size: 1.55rem;
+}
+
+.edit-modal-header p {
+    margin: 6px 0 0;
+    color: #727b8b;
+    font-size: 0.9rem;
+}
+
 #editProductForm {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsive grid for fields */
-    gap: 15px;
-    padding-top: 15px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    padding: 24px 28px 28px;
 }
 
 #editProductForm .form-group {
-    margin-bottom: 0;
+    min-width: 0;
+    margin: 0;
+    padding: 13px 14px;
+    border: 1px solid #e3e6ef;
+    border-radius: 11px;
+    background-color: #fff;
+    box-shadow: 0 2px 7px rgba(31, 42, 68, 0.04);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+#editProductForm .form-group:focus-within {
+    border-color: #8795e1;
+    box-shadow: 0 5px 16px rgba(55, 69, 181, 0.12);
+    transform: translateY(-1px);
 }
 
 #editProductForm label {
     display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #555;
-    font-size: 0.9em;
+    margin-bottom: 7px;
+    color: #596273;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.025em;
+    text-transform: uppercase;
 }
 
 #editProductForm input[type="text"],
 #editProductForm input[type="number"],
-#editProductForm textarea {
+#editProductForm textarea,
+#editProductForm select {
     width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    padding: 9px 10px;
     box-sizing: border-box;
+    border: 1px solid #d8dce6;
+    border-radius: 7px;
+    background-color: #fbfcfe;
+    color: #252b36;
     font-family: inherit;
-    font-size: 0.95em;
+    font-size: 0.92rem;
+    outline: none;
+    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#editProductForm input[type="text"]:focus,
+#editProductForm input[type="number"]:focus,
+#editProductForm textarea:focus,
+#editProductForm select:focus {
+    border-color: #5367d5;
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(83, 103, 213, 0.12);
+}
+
+#editProductForm select {
+    cursor: pointer;
+}
+
+#editProductForm input[readonly] {
+    border-color: #e4e7ed;
+    background-color: #f0f2f6;
+    color: #7a8392;
+    cursor: not-allowed;
 }
 
 #editProductForm textarea {
     resize: vertical;
-    min-height: 60px;
+    min-height: 86px;
+}
+
+#editProductForm .update-notes-group {
+    grid-column: 1 / -1;
+}
+
+.edit-form-actions {
+    display: flex;
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 8px;
 }
 
 #editProductForm .edit-form-action {
-    grid-column: 1 / -1;
-    padding: 12px 20px;
-    color: white;
+    min-width: 150px;
+    margin: 0;
+    padding: 11px 20px;
     border: none;
-    border-radius: 5px;
+    border-radius: 9px;
     cursor: pointer;
-    font-size: 1em;
-    margin-top: 10px;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 700;
+    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-#editProductForm button[type="submit"] {
-    background-color: #60b8d4;
+#editProductForm .calculate-prices-button {
+    border: 1px solid #d5d9e5;
+    background: #fff;
+    color: #465064;
 }
 
-#editProductForm button[type="submit"]:hover {
-    background-color: #50a8c4;
+#editProductForm .calculate-prices-button:hover {
+    background: #eef0f6;
+    box-shadow: 0 4px 10px rgba(31, 42, 68, 0.08);
+}
+
+#editProductForm .save-product-button {
+    background: linear-gradient(135deg, #5367d5, #3745b5);
+    box-shadow: 0 7px 16px rgba(55, 69, 181, 0.24);
+}
+
+#editProductForm .save-product-button:hover {
+    background: linear-gradient(135deg, #4659c6, #2a358a);
+    box-shadow: 0 9px 20px rgba(55, 69, 181, 0.3);
+    transform: translateY(-1px);
+}
+
+#editProductForm .edit-form-action:focus-visible {
+    outline: 3px solid rgba(83, 103, 213, 0.28);
+    outline-offset: 2px;
+}
+
+@media (max-width: 900px) {
+    #editProductForm {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 620px) {
+    .edit-product-modal {
+        padding: 10px;
+        align-items: flex-start;
+    }
+
+    .edit-product-content {
+        max-height: calc(100vh - 20px);
+        border-radius: 14px;
+    }
+
+    .edit-modal-header {
+        padding: 20px;
+        border-radius: 14px 14px 0 0;
+    }
+
+    #editProductForm {
+        grid-template-columns: 1fr;
+        padding: 18px;
+    }
+
+    .edit-form-actions {
+        flex-direction: column-reverse;
+    }
+
+    #editProductForm .edit-form-action {
+        width: 100%;
+    }
 }
 
 .action-button {
@@ -262,8 +432,32 @@ body {
     margin-top: 0;
 }
 
+.product-actions .edit-button {
+    padding: 5px 12px;
+    border: 1px solid rgba(42, 53, 138, 0.18);
+    border-radius: 7px;
+    background: linear-gradient(135deg, #5367d5, #3745b5);
+    box-shadow: 0 3px 8px rgba(55, 69, 181, 0.22);
+    font-size: 0.8em;
+    font-weight: 600;
+    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.product-actions .edit-button:hover {
+    background: linear-gradient(135deg, #4659c6, #2a358a);
+    box-shadow: 0 5px 12px rgba(55, 69, 181, 0.3);
+    transform: translateY(-1px);
+}
+
+.product-actions .edit-button:focus-visible {
+    outline: 3px solid rgba(83, 103, 213, 0.3);
+    outline-offset: 2px;
+}
+
 .product-actions .delete-button {
     background-color: #dc3545;
+    padding: 5px 10px;
+    font-size: 0.8em;
 }
 
 .product-actions .delete-button:hover {
@@ -273,6 +467,120 @@ body {
 .product-actions .delete-button:disabled {
     cursor: wait;
     opacity: 0.65;
+}
+
+.delete-confirm-modal {
+    z-index: 1100;
+    padding: 20px;
+    box-sizing: border-box;
+    backdrop-filter: blur(3px);
+}
+
+.delete-confirm-content {
+    width: 100%;
+    max-width: 420px;
+    padding: 32px;
+    box-sizing: border-box;
+    border: 1px solid rgba(220, 53, 69, 0.18);
+    border-radius: 16px;
+    background-color: #fff;
+    box-shadow: 0 20px 60px rgba(22, 28, 45, 0.25);
+    text-align: center;
+    animation: delete-confirm-enter 0.2s ease-out;
+}
+
+.delete-confirm-icon {
+    display: flex;
+    width: 54px;
+    height: 54px;
+    margin: 0 auto 18px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: #fdecee;
+    color: #dc3545;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.delete-confirm-content h2 {
+    margin: 0 0 10px;
+    color: #252b36;
+    font-size: 1.4rem;
+}
+
+.delete-confirm-content p {
+    margin: 0;
+    color: #68707d;
+    line-height: 1.55;
+}
+
+.delete-confirm-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 26px;
+    justify-content: center;
+}
+
+.delete-confirm-actions button {
+    min-width: 130px;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.delete-cancel-button {
+    background-color: #eef1f5;
+    color: #3d4654;
+}
+
+.delete-cancel-button:hover {
+    background-color: #e1e5eb;
+}
+
+.delete-confirm-button {
+    background-color: #dc3545;
+    color: #fff;
+    box-shadow: 0 6px 16px rgba(220, 53, 69, 0.25);
+}
+
+.delete-confirm-button:hover {
+    background-color: #bd2130;
+    transform: translateY(-1px);
+}
+
+.delete-confirm-actions button:focus-visible {
+    outline: 3px solid rgba(55, 69, 181, 0.3);
+    outline-offset: 2px;
+}
+
+@keyframes delete-confirm-enter {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (max-width: 480px) {
+    .delete-confirm-content {
+        padding: 26px 20px;
+    }
+
+    .delete-confirm-actions {
+        flex-direction: column-reverse;
+    }
+
+    .delete-confirm-actions button {
+        width: 100%;
+    }
 }
 
 /* Style for the View Details button */
